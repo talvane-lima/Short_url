@@ -1,0 +1,43 @@
+version: '2'
+services:
+  apachephp:
+    build:
+      context: Server/Apache_PHP/.
+    ports:
+      - "81:80"
+    networks:
+      - mmorenet
+    volumes:
+      - ./App/:/var/www/html/
+    container_name: apachephpcontainer_mmmore
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mmmore_user
+      MONGO_INITDB_ROOT_PASSWORD: 2z4cHUttV9>w
+    networks:
+      - mmorenet
+    volumes:
+      - mmoredata:/data/db
+    container_name: mongocontainer_mmore
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 82:8081
+    networks:
+      - mmorenet
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: mmmore_user
+      ME_CONFIG_MONGODB_ADMINPASSWORD: 2z4cHUttV9>w
+    container_name: mongoexpcontainer_mmore
+
+networks:
+  mmorenet:
+    driver: bridge
+
+volumes:
+  mmoredata:
