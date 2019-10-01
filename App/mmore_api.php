@@ -77,9 +77,13 @@ function find_for_user($user_id)
  
 	if ($urls->count($find_data) > 1) {
 		$result = $urls->find($find_data);
+		$output_json = '[';
 		foreach ($result as $key => $value) {
- 			echo json_encode($value);
+ 			$output_json .= json_encode($value).',';
 		}
+		$output_json = substr($output_json, 0, -1);
+		$output_json.=']';
+		echo json_encode($output_json);
 	} else {
 		$result = $urls->findOne($find_data);
 		echo json_encode($result);
@@ -99,7 +103,5 @@ else{
 	if (isset($_GET['url'])) {
 		find_url($_GET['url']);
 	}
-} 
-
-
+}
 ?>
