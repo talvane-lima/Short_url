@@ -15,6 +15,7 @@ function insert_mongo($user_id, $url)
 
 	$base_new_url = 'https://mmore/';
 	$new_url = hash('Adler32', $url);
+	
 
 	$insert_data = array(
 		'user_id' => $user_id,
@@ -23,10 +24,13 @@ function insert_mongo($user_id, $url)
 		'saved_at' => new MongoDate(),
 		'number_clicks' => 0
 	);
-
-    $urls->insert($insert_data);
-    $connection->close();
-    echo json_encode($insert_data);
+	if ($urls->count(array('user_id' => $user_id,'original_url' => $url))>=1) {
+    	echo json_encode($urls->findOne(array('user_id' => $user_id,'original_url' => $url)));
+	} else {
+		$urls->insert($insert_data);
+    	echo json_encode($insert_data);
+	}
+	$connection->close();
 }
 
 
@@ -50,7 +54,7 @@ function find_url($short_url)
 	$urls->update($find_data, array('$set' => array('number_clicks' => $result['number_clicks']+1)));
 	$result = $urls->findOne($find_data);
 	$connection->close();
-    echo $result;
+    echo json_encode($result);
 }
 
 
@@ -70,12 +74,19 @@ function find_for_user($user_id)
 		'user_id' => $user_id
 	);
 
-	$result = $urls->find($find_data);
-	$connection->close();
-
-    foreach ($result as $key => $value) {
- 		echo json_encode($value);
+ 
+	if ($urls->count($find_data) > 1) {
+		$result = $urls->find($find_data);
+		foreach ($result as $key => $value) {
+ 			echo json_encode($value);
+		}
+	} else {
+		$result = $urls->findOne($find_data);
+		echo json_encode($result);
 	}
+	
+	$connection->close();
+    
 }
 
 if(isset($_GET['user_id']) && isset($_GET['url'])) {
@@ -83,7 +94,7 @@ if(isset($_GET['user_id']) && isset($_GET['url'])) {
 }
 else{
 	if (isset($_GET['user_id'])) {
-		find_for_user(isset($_GET['user_id']));
+		find_for_user($_GET['user_id']);
 	}
 	if (isset($_GET['url'])) {
 		find_url($_GET['url']);
