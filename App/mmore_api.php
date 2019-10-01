@@ -26,7 +26,7 @@ function insert_mongo($user_id, $url)
 
     $urls->insert($insert_data);
     $connection->close();
-    echo $insert_data;
+    echo json_encode($insert_data);
 }
 
 
@@ -77,6 +77,18 @@ function find_for_user($user_id)
  		echo json_encode($value);
 	}
 }
+
+if(isset($_GET['user_id']) && isset($_GET['url'])) {
+    insert_mongo($_GET['user_id'],$_GET['url']);
+}
+else{
+	if (isset($_GET['user_id'])) {
+		find_for_user(isset($_GET['user_id']));
+	}
+	if (isset($_GET['url'])) {
+		find_url($_GET['url']);
+	}
+} 
 
 
 ?>
